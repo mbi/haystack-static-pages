@@ -1,4 +1,4 @@
-import urllib2
+import urllib2, urlparse
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -70,12 +70,17 @@ class Command(BaseCommand):
 
             print 'Analyzing %s...' % url
 
+            if settings.HAYSTACK_STATIC_PAGES_STORE_REL_URL:
+                store_url = urlparse.urlsplit(url).path
+            else:
+                store_url = url
+
             try:
-                page = StaticPage.objects.get(url=url)
+                page = StaticPage.objects.get(url=store_url)
                 print '%s already exists in the index, updating...' % url
             except StaticPage.DoesNotExist:
                 print '%s is new, adding...' % url
-                page = StaticPage(url=url)
+                page = StaticPage(url=store_url)
                 pass
 
             try:
