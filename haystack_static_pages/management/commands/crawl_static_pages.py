@@ -70,10 +70,11 @@ class Command(BaseCommand):
 
             print 'Analyzing %s...' % url
 
-            if settings.HAYSTACK_STATIC_PAGES_STORE_REL_URL:
-                store_url = urlparse.urlsplit(url).path
-            else:
+            if not hasattr( settings, 'HAYSTACK_STATIC_PAGES_STORE_REL_URL' ) or \
+                not settings.HAYSTACK_STATIC_PAGES_STORE_REL_URL:
                 store_url = url
+            else:
+                store_url = urlparse.urlsplit(url).path
 
             try:
                 page = StaticPage.objects.get(url=store_url)
