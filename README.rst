@@ -20,6 +20,9 @@ Basic Usage:
 
 #. If you intend to register static pages yourself, stop haystack static pages doing so
 by adding ``HAYSTACK_STATIC_PAGES_NO_REGISTER = False`` to your ``settings.py``
+#. Set HAYSTACK_STATIC_PAGES_STORE_REL_URL in your settings.py to True if you wish to
+store relative URLs rather than absolute URLs (helpful if you have a single site on
+different domains.
 
 	eg. ::
 
