@@ -26,7 +26,7 @@ by adding ``HAYSTACK_STATIC_PAGES_NO_REGISTER = False`` to your ``settings.py``
 	    HAYSTACK\_STATIC\_PAGES = (
                 'static-about_us',                        # A named url
                 'static-help',                            # Another named url
-                'http://www.example.com/some_page.html',  # An fully qualified url
+                'http://www.example.com/some_page.html',  # A fully qualified url
 	    )
 
 #. ``./manage.py syncdb`` to create the necessary tables.
@@ -54,3 +54,10 @@ There are currently two command line options that can be used with the
                           or 'en' if unable to be determined.
 -p PORT, --port=PORT      This allows the user to include the port number to
                           crawl, if required.
+-n NAMED_URLS, --names=NAMED_URLS
+                          This allows the user to include additional named urls
+                          that may not necessarily be known for placing in settings.py
+-u URLS, --urls=URLS      This allows the user to include additional actual urls
+                          that may not necessarily be known for placing in settings.py
+
+

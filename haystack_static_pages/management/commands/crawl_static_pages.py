@@ -3,7 +3,7 @@ import urllib2
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand, CommandError
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.utils import translation
 from django.utils.html import escape
 from optparse import make_option
@@ -12,6 +12,8 @@ from BeautifulSoup import BeautifulSoup
 
 from haystack_static_pages.models import StaticPage
 
+def list_callback(option, opt, value, parser):
+  setattr(parser.values, option.dest, value.split(','))
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -19,9 +21,13 @@ class Command(BaseCommand):
             help='The port number to use for internal urls.'),
         make_option('-l', '--language', action='store', dest='language', default=None,
             help='The language to use when requesting the page'),
+        make_option('-n', '--names', type='string', action='callback', callback=list_callback,
+            help='List of named urls to be indexed (in addition to HAYSTACK_STATIC_PAGES)'),
+        make_option('-u', '--urls', type='string', action='callback', callback=list_callback,
+            help='List of actual urls to be indexed (in addition to HAYSTACK_STATIC_PAGES)'),
     )
     help = 'Setup static pages defined in HAYSTACK_STATIC_PAGES for indexing by Haystack'
-    cmd = 'crawl_static_pages [-p PORT] [-l LANG]'
+    cmd = 'crawl_static_pages [-p PORT] [-l LANG] [-u LIST OF URLs]'
 
     def handle(self, *args, **options):
         if args:
@@ -42,12 +48,25 @@ class Command(BaseCommand):
         if self.language:
             translation.activate(self.language)
 
-        for url in settings.HAYSTACK_STATIC_PAGES:
+        urls_to_index = list( settings.HAYSTACK_STATIC_PAGES )
+
+        if options.get('urls'): urls_to_index.extend( options.get('urls') )
+        if options.get('names'): urls_to_index.extend( options.get('names') )
+
+        for url in urls_to_index:
             if not url.startswith('http://'):
-                if self.port:
-                    url = 'http://%s:%r%s' % (Site.objects.get_current().domain, self.port, reverse(url))
-                else:
-                    url = 'http://%s%s' % (Site.objects.get_current().domain, reverse(url))
+                try:
+                    if self.port:
+                        url = 'http://%s:%r%s' % (Site.objects.get_current().domain, self.port, reverse(url))
+                    else:
+                        url = 'http://%s%s' % (Site.objects.get_current().domain, reverse(url))
+                except NoReverseMatch:
+                        try:
+                            url = 'http://%s%s' % (Site.objects.get_current().domain, url)
+                            html = urllib2.urlopen(url)
+                        except:
+                            print 'No reverse match found for named url and is not valid url\n%s' % url
+                            continue
 
             print 'Analyzing %s...' % url
 
