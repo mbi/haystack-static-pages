@@ -61,12 +61,12 @@ class Command(BaseCommand):
                     else:
                         url = 'http://%s%s' % (Site.objects.get_current().domain, reverse(url))
                 except NoReverseMatch:
-                        try:
-                            url = 'http://%s%s' % (Site.objects.get_current().domain, url)
-                            html = urllib2.urlopen(url)
-                        except:
-                            print 'No reverse match found for named url and is not valid url\n%s' % url
-                            continue
+                    try:
+                        url = 'http://%s%s' % (Site.objects.get_current().domain, url)
+                        html = urllib2.urlopen(url)
+                    except:
+                        print 'No reverse match found for named url and is not valid url\n%s' % url
+                        continue
 
             print 'Analyzing %s...' % url
 
