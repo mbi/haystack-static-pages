@@ -5,6 +5,11 @@ Haystack Static Pages is an extension library for Haystack.  Currently, it adds
 the ability to index static pages through the use of a `settings.py` variable
 and command extension.
 
+Dependencies:
+------------
+
+This package relies on the BeautifulSoup Python HTML/XML parser which must be installed,
+along with haystack and django.
 
 Basic Usage:
 ------------
@@ -36,13 +41,13 @@ Basic Usage:
 Advanced Usage:
 ---------------
 
-There are currently two command line options that can be used with the 
+There are currently two command line options that can be used with the
 `crawl_static_pages` command:
 
 -l LANG, --language=LANG  This allows the user to specify the desired language
-                          for indexing content.  Each page will include a 
+                          for indexing content.  Each page will include a
                           ``language`` attribute that will correspond to the
                           page's language as detected in the html lang attribute
                           or 'en' if unable to be determined.
--p PORT, --port=PORT      This allows the user to include the port number to 
+-p PORT, --port=PORT      This allows the user to include the port number to
                           crawl, if required.
