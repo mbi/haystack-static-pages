@@ -18,6 +18,9 @@ Basic Usage:
 #. Add ``haystack_static_pages`` to your ``INSTALLED_APPS`` in ``settings.py``
 #. Add ``HAYSTACK_STATIC_PAGES`` to your ``settings.py``.
 
+#. If you intend to register static pages yourself, stop haystack static pages doing so
+by adding ``HAYSTACK_STATIC_PAGES_NO_REGISTER = False`` to your ``settings.py``
+
 	eg. ::
 
 	    HAYSTACK\_STATIC\_PAGES = (
