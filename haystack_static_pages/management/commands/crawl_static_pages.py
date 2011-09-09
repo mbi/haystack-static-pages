@@ -22,7 +22,7 @@ class Command(BaseCommand):
     )
     help = 'Setup static pages defined in HAYSTACK_STATIC_PAGES for indexing by Haystack'
     cmd = 'crawl_static_pages [-p PORT] [-l LANG]'
-    
+
     def handle(self, *args, **options):
         if args:
             raise CommandError('Usage is: %s' % cmd)
@@ -41,16 +41,16 @@ class Command(BaseCommand):
 
         if self.language:
             translation.activate(self.language)
-        
+
         for url in settings.HAYSTACK_STATIC_PAGES:
             if not url.startswith('http://'):
                 if self.port:
                     url = 'http://%s:%r%s' % (Site.objects.get_current().domain, self.port, reverse(url))
                 else:
                     url = 'http://%s%s' % (Site.objects.get_current().domain, reverse(url))
-            
+
             print 'Analyzing %s...' % url
-            
+
             try:
                 page = StaticPage.objects.get(url=url)
                 print '%s already exists in the index, updating...' % url
@@ -58,13 +58,13 @@ class Command(BaseCommand):
                 print '%s is new, adding...' % url
                 page = StaticPage(url=url)
                 pass
-            
+
             try:
                 html = urllib2.urlopen(url)
             except urllib2.URLError:
                 print "Error while reading '%s'" % url
                 continue
-            
+
             soup = BeautifulSoup(html)
             try:
                 page.title = escape(soup.head.title.string)
@@ -75,7 +75,7 @@ class Command(BaseCommand):
                 page.description = meta.get('content', '')
             else:
                 page.description = ''
-            page.language = soup.html.get('lang')
+            page.language = soup.html.get('lang') if soup.html.get('lang') else u'en-US'
             page.content = soup.prettify()
             page.save()
             count += 1
