@@ -26,7 +26,7 @@ different domains.
 
 	eg. ::
 
-	    HAYSTACK\_STATIC\_PAGES = (
+	    HAYSTACK_STATIC_PAGES = (
                 'static-about_us',                        # A named url
                 'static-help',                            # Another named url
                 'http://www.example.com/some_page.html',  # A fully qualified url
@@ -62,5 +62,6 @@ There are currently two command line options that can be used with the
                           that may not necessarily be known for placing in settings.py
 -u URLS, --urls=URLS      This allows the user to include additional actual urls
                           that may not necessarily be known for placing in settings.py
-
-
+-s, --strip=True               Strip tags from the fetched HTML, and only keeps the text content
+                          Can also be set by specifying HAYSTACK_STATIC_PAGES_STRIP_HTML=True
+                          in your ``settings.py``

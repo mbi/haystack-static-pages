@@ -7,13 +7,29 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.utils import translation
 from django.utils.html import escape
 from optparse import make_option
-
 from BeautifulSoup import BeautifulSoup
-
+from HTMLParser import HTMLParser
 from haystack_static_pages.models import StaticPage
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
+
 
 def list_callback(option, opt, value, parser):
   setattr(parser.values, option.dest, value.split(','))
+
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -25,11 +41,13 @@ class Command(BaseCommand):
             help='List of named urls to be indexed (in addition to HAYSTACK_STATIC_PAGES)'),
         make_option('-u', '--urls', type='string', action='callback', callback=list_callback,
             help='List of actual urls to be indexed (in addition to HAYSTACK_STATIC_PAGES)'),
+        make_option('-s', '--strip', action='store_true', dest='strip_html', default=False,
+            help='Strip HTML tags prior to saving the page'),
     )
     help = 'Setup static pages defined in HAYSTACK_STATIC_PAGES for indexing by Haystack'
-    cmd = 'crawl_static_pages [-p PORT] [-l LANG] [-u LIST OF URLs]'
 
     def handle(self, *args, **options):
+        cmd = 'crawl_static_pages [-p PORT] [-l LANG] [-u LIST OF URLs]'
         if args:
             raise CommandError('Usage is: %s' % cmd)
 
@@ -101,7 +119,12 @@ class Command(BaseCommand):
             else:
                 page.description = ''
             page.language = soup.html.get('lang', u'en-US')
-            page.content = soup.prettify()
+            if options.get('strip_html') or hasattr( settings, 'HAYSTACK_STATIC_PAGES_STRIP_HTML') and settings.HAYSTACK_STATIC_PAGES_STRIP_HTML:
+                # remove inline javascript
+                [s.extract() for s in soup('script')]
+                page.content = strip_tags(unicode(soup.body))
+            else:
+                page.content = soup.prettify()
             page.save()
             count += 1
 
