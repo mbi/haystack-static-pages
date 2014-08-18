@@ -1,6 +1,5 @@
 from django.conf import settings
 from haystack import indexes
-from haystack import site
 
 from haystack_static_pages.models import StaticPage
 
@@ -18,4 +17,5 @@ class StaticPageIndex(indexes.SearchIndex):
 
 if not hasattr( settings, 'HAYSTACK_STATIC_PAGES_NO_REGISTER' ) or \
     not settings.HAYSTACK_STATIC_PAGES_NO_REGISTER:
+        from haystack import site
         site.register(StaticPage, StaticPageIndex)
